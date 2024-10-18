@@ -111,7 +111,7 @@ const resolvers = {
       throw AuthenticationError;
     },
 
-    removeBook: async (_parent: any {bookId}: BookArgs, context:any) => {
+    removeBook: async (_parent: any, {bookId}: BookArgs, context:any) => {
       if (context.user) {
         const bookToRemove = await Book.findOne({ bookId });
       
