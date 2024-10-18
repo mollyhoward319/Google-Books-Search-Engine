@@ -1,8 +1,8 @@
 import { useState, FormEvent } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { Container, Card, Button, Row, Col, Form } from "react-bootstrap";
-import { searchGoogleBooks } from "../utils/API";
-import { ADD_BOOK } from "../utils/mutations";
+import { searchGoogleBooks } from "../utils/api";
+import { SAVE_BOOK } from "../utils/mutations";
 import Auth from "../utils/auth";
 import { GET_BOOKS, GET_ME } from "../utils/queries";
 
@@ -11,7 +11,7 @@ const SearchBooks = () => {
   const [searchInput, setSearchInput] = useState<string>("");
 
   // gql mutation to add a book to the user's saved books
-  const [addBook] = useMutation(ADD_BOOK, {
+  const [addBook] = useMutation(SAVE_BOOK, {
     refetchQueries: [GET_BOOKS, "GetBooks", GET_ME, "Getme"],
   });
 
