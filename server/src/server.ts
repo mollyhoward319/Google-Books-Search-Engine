@@ -6,6 +6,9 @@ import { ApolloServer } from '@apollo/server';// Note: Import from @apollo/serve
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './utils/auth.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const server = new ApolloServer({
   typeDefs,
@@ -21,6 +24,8 @@ const startApolloServer = async () => {
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
+
+  app.use(express.static(path.join(process.cwd(), '../client/dist')));
 
   app.use('/graphql', expressMiddleware(server as any,
     {
