@@ -1,0 +1,18 @@
+[
+    {
+        "username": "Shrek",
+        "email" : "ilovemud@gmail.com",
+        "password" : "ogresrule"
+    },
+    {
+        "username": "Donkey",
+        "email" : "inthemorninimmakinwaffles@gmail.com",
+        "password" : "wafflesrule"
+    },
+    {
+        "username": "Fiona",
+        "email" : "iamaprincess@gmail.com",
+        "password" : "princessesrule"
+    }
+
+]
