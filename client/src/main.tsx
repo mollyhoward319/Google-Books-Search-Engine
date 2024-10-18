@@ -1,50 +1,33 @@
-import { type JwtPayload, jwtDecode } from 'jwt-decode';
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-interface ExtendedJwt extends JwtPayload {
-  data:{
-    username:string,
-    email:string,
-    _id:string
-  }
-};
+import App from './App.jsx';
+import SearchBooks from './pages/SearchBooks';
+import SavedBooks from './pages/SavedBooks';
 
-class AuthService {
-  getProfile() {
-    return jwtDecode<ExtendedJwt>(this.getToken());
-  }
-
-  loggedIn() {
-    const token = this.getToken();
-    return !!token && !this.isTokenExpired(token);
-  }
-
-  isTokenExpired(token: string) {
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-
-      if (decoded?.exp && decoded?.exp < Date.now() / 1000) {
-        return true;
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+    errorElement: <h1 className ='display-2'>Not Found</h1>,
+    children: [
+      {
+        index: true,
+        element: <SearchBooks />
+      }, {
+        path: '/saved',
+        element: <SavedBooks />
       }
-    } catch (err) {
-      return false;
-    }
+    ]
   }
+])
 
-  getToken(): string {
-    const loggedUser = localStorage.getItem('id_token') || '';
-    return loggedUser;
-  }
+const rootElement = document.getElementById('root');
 
-  login(idToken: string) {
-    localStorage.setItem('id_token', idToken);
-    window.location.assign('/');
-  }
-
-  logout() {
-    localStorage.removeItem('id_token');
-    window.location.assign('/');
-  }
+if(rootElement) {
+  ReactDOM.createRoot(rootElement).render(
+    <RouterProvider router={router} />
+  );
 }
-
-export default new AuthService();
 
