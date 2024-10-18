@@ -1,3 +1,4 @@
-import Profile from './Profile.js';
+import Book from './Book.js';
+import User from './User.js';
 
-export { Profile };
+export { Book, User };

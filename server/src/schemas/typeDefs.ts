@@ -1,36 +1,60 @@
-const typeDefs = `
-  type Profile {
+import { gql } from 'graphql-tag';
+
+const typeDefs = gql`
+
+  type User {
     _id: ID
-    name: String
+    username: String
     email: String
     password: String
-    skills: [String]!
+    savedBooks: [Book]
+  }
+
+  type Book {
+    _id: ID
+    bookId: String!
+    authors: [String]!
+    description: String
+    title: String
+    image: String
+    link: String
   }
 
   type Auth {
     token: ID!
-    profile: Profile
+    user: User
   }
   
-  input ProfileInput {
-    name: String!
+  input AddUserInput {
+    username: String!
     email: String!
     password: String!
   }
 
+  input BookInput {
+    authors: [String]!
+    description: String!
+    title: String!
+    bookId: String!
+    image: String!
+    link: String!
+  }
+
   type Query {
-    profiles: [Profile]!
-    profile(profileId: ID!): Profile
-    me: Profile
+    searchBooks(searchInput: String!): [Book]!
+    me: User
+    users: [User]!
+    user(username: String!): User
+    books: [Book]
+    book(bookId: String!): Book
   }
 
   type Mutation {
-    addProfile(input: ProfileInput!): Auth
+    addUser(input: AddUserInput!): User
     login(email: String!, password: String!): Auth
 
-    addSkill(profileId: ID!, skill: String!): Profile
-    removeProfile: Profile
-    removeSkill(skill: String!): Profile
+    addBook(input: BookInput!): User 
+    removeBook(bookId: String!): User
   }
 `;
 

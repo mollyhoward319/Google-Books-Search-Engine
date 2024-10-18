@@ -1,104 +1,134 @@
-import { Profile } from '../models/index.js';
+import { Book, User } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 
-interface Profile {
-  _id: string;
-  name: string;
-  email: string;
-  password: string;
-  skills: string[];
+interface AddUserArgs {
+  input: {
+    username: string;
+    email: string;
+    password: string;
+  };
 }
 
-interface ProfileArgs {
-  profileId: string;
-}
-
-interface AddProfileArgs {
-  input:{
-    name: string;
+interface LoginUserArgs {
     email: string;
     password: string;
   }
+
+  interface UserArgs {
+    username: string;
+  }
+
+  interface BookArgs {
+    bookId: string;
+  }
+
+interface AddBookArgs {
+ input: {
+    authors: string[];
+    description: string;
+    title: string;
+    bookId: string;
+    image: string;
+    link: string;
+ }
 }
 
-interface AddSkillArgs {
-  profileId: string;
-  skill: string;
-}
-
-interface RemoveSkillArgs {
-  profileId: string;
-  skill: string;
-}
-
-interface Context {
-  user?: Profile;
+interface SearchBookArgs {
+  searchInput: string;
 }
 
 const resolvers = {
   Query: {
-    profiles: async (): Promise<Profile[]> => {
-      return await Profile.find();
+    users: async () => {
+      return User.find().populate('savedBooks');
     },
-    profile: async (_parent: any, { profileId }: ProfileArgs): Promise<Profile | null> => {
-      return await Profile.findOne({ _id: profileId });
+
+    user: async (_parent: any, { username }: UserArgs) => {
+      return User.findOne({ username }).populate('savedBooks');
     },
-    me: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
+
+    books: async () => {
+      return await Book.find().sort({ createdAt: -1 });
+    },
+
+    book: async (_parent: any, { bookId }: BookArgs) => {
+      return Book.findOne({ bookId });
+    },
+
+    searchBooks: async (_parent: any, { searchInput }: SearchBookArgs) => {
+      const books = await Book.find({
+        $or: [
+          { title: { $regex: searchInput, $options: 'i' } },
+          { authors: { $regex: searchInput, $options: 'i' } },
+          { description: { $regex: searchInput, $options: 'i' } },
+        ],
+      });
+
+      if (!books) {
+        throw new Error('Cannot find any books');
+      }
+      return books;
+    },
+
+    me: async (_parent: any, _args: any, context: any) => {
       if (context.user) {
-        return await Profile.findOne({ _id: context.user._id });
+        return User.findOne({ _id: context.user._id }).populate('savedBooks');
       }
       throw AuthenticationError;
     },
   },
   Mutation: {
-    addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
-      const profile = await Profile.create({ ...input });
-      const token = signToken(profile.name, profile.email, profile._id);
-      return { token, profile };
+    addUser: async (_parent: any, { input }: AddUserArgs) => {
+      const user = await User.create({ ...input });
+      const token = signToken(user.username, user.email, user._id);
+      return { token, user };
     },
-    login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; profile: Profile }> => {
-      const profile = await Profile.findOne({ email });
-      if (!profile) {
+    login: async (_parent: any, { email, password }: LoginUserArgs) => {
+      const user = await User.findOne({ email });
+      if (!user) {
         throw AuthenticationError;
       }
-      const correctPw = await profile.isCorrectPassword(password);
+      const correctPw = await user.isCorrectPassword(password);
       if (!correctPw) {
         throw AuthenticationError;
       }
-      const token = signToken(profile.name, profile.email, profile._id);
-      return { token, profile };
+      const token = signToken(user.name, user.email, user._id);
+      return { token, user };
     },
-    addSkill: async (_parent: any, { profileId, skill }: AddSkillArgs, context: Context): Promise<Profile | null> => {
+    addBook: async (_parent: any, { input }: AddBookArgs, context: any) => {
       if (context.user) {
-        return await Profile.findOneAndUpdate(
-          { _id: profileId },
-          {
-            $addToSet: { skills: skill },
-          },
-          {
-            new: true,
-            runValidators: true,
-          }
-        );
-      }
-      throw AuthenticationError;
-    },
-    removeProfile: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        return await Profile.findOneAndDelete({ _id: context.user._id });
-      }
-      throw AuthenticationError;
-    },
-    removeSkill: async (_parent: any, { skill }: RemoveSkillArgs, context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        return await Profile.findOneAndUpdate(
+        const existingBook = await Book.findOne({ bookId: input.bookId });
+        const book = existingBook || await Book.create({ ...input });
+
+        const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { skills: skill } },
+          { $addToSet: { savedBooks: book._id } },
           { new: true }
-        );
+        ).populate('savedBooks');
+
+        return updatedUser;
       }
       throw AuthenticationError;
     },
+
+    removeBook: async (_parent: any {bookId}: BookArgs, context:any) => {
+      if (context.user) {
+        const bookToRemove = await Book.findOne({ bookId });
+      
+        if (!bookToRemove) {
+      throw AuthenticationError;
+    }
+
+   const updatedUser = await User.findOneAndUpdate(
+      { _id: context.user._id },
+      { $pull: { savedBooks: bookToRemove._id } },
+      { new: true }
+    ).populate('savedBooks');
+
+    return updatedUser;
+  }
+  throw AuthenticationError;
+},
   },
 };
 
