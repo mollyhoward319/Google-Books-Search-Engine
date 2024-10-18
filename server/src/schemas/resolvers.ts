@@ -23,14 +23,14 @@ interface LoginUserArgs {
   }
 
 interface AddBookArgs {
- input: {
+input: {
     authors: string[];
     description: string;
     title: string;
     bookId: string;
     image: string;
     link: string;
- }
+}
 }
 
 interface SearchBookArgs {
@@ -92,7 +92,7 @@ const resolvers = {
       if (!correctPw) {
         throw AuthenticationError;
       }
-      const token = signToken(user.name, user.email, user._id);
+      const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
     addBook: async (_parent: any, { input }: AddBookArgs, context: any) => {
@@ -119,7 +119,7 @@ const resolvers = {
       throw AuthenticationError;
     }
 
-   const updatedUser = await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
       { _id: context.user._id },
       { $pull: { savedBooks: bookToRemove._id } },
       { new: true }
