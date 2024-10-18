@@ -1,45 +1,67 @@
 import { gql } from '@apollo/client';
 
-export const ADD_PROFILE = gql`
-  mutation addProfile($input: ProfileInput!) {
-    addProfile(input: $input) {
-      token
-      profile {
+export const GET_USER = gql`
+  mutation GetUser($username: String!) {
+    user(username: $username) {
+      username
+      email 
         _id
-        name
+        savedBooks {
+          _id 
+          bookId
+          authors
+          description
+          title
+          image
+          link
+        }
+      }
+    }
+`;
+
+export const GET_ME = gql`
+  query me {
+    me {
+      username
+      email
+      _id
+      savedBooks {
+        _id
+        bookId
+        authors
+        description
+        title
+        image
+        link
       }
     }
   }
 `;
 
-export const ADD_SKILL = gql`
-  mutation addSkill($profileId: ID!, $skill: String!) {
-    addSkill(profileId: $profileId, skill: $skill) {
+export const SEARCH_BOOKS = gql`
+  query searchBooks($search: String!) {
+    searchBooks(search: $search) {
       _id
-      name
-      skills
+      bookId
+      authors
+      description
+      title
+      image
+      link
     }
   }
 `;
 
-export const LOGIN_USER = gql`
-  mutation login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      token
-      profile {
-        _id
-        name
-      }
-    }
+export const GET_BOOKS = gql`
+query GetBook($bookId: String!) {
+  book(bookId: $bookId) {
+    _id
+    bookId
+    title
+    authors
+    description
+    image
+    link
   }
-`;
-
-export const REMOVE_SKILL = gql`
-  mutation removeSkill($skill: String!) {
-    removeSkill(skill: $skill) {
-      _id
-      name
-      skills
-    }
-  }
+}
 `;
