@@ -5,7 +5,7 @@ import { ADD_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
 import type {User} from '../models/User.ts';
 
-  const SignupForm = ({}: { handleModalClose: () => void }) => {
+  const SignupForm = ({handleModalClose}: { handleModalClose: () => void }) => {
   const [userFormData, setUserFormData] = useState<User>
   ({
     username: '',
@@ -40,14 +40,15 @@ const [validated] = useState(false);
 
     try {
       const { data } = await addUser({
-        variables: { 
+        variables: { input: {
           username: userFormData.username,
           email: userFormData.email,
           password: userFormData.password,
-        },
+        }},
       });
 
       Auth.login(data.addUser.token);
+      handleModalClose();
     } catch (e) {
       console.error(e);
       setShowAlert(true);
