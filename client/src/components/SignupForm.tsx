@@ -5,7 +5,7 @@ import { ADD_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
 import type {User} from '../models/User.ts';
 
-  const SignupForm = ({handleModalClose}: { handleModalClose: () => void }) => {
+  const SignupForm = ({}: { handleModalClose: () => void }) => {
   const [userFormData, setUserFormData] = useState<User>
   ({
     username: '',
@@ -18,8 +18,8 @@ const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
   // update state based on form input changes
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
+  const handleInputChange = (event: ChangeEvent) => {
+    const { name, value } = event.target as HTMLInputElement;
 
     setUserFormData({
       ...userFormData,
@@ -39,16 +39,17 @@ const [validated] = useState(false);
     }
 
     try {
+
       const { data } = await addUser({
-        variables: { input: {
+        variables: { 
+          input  : {
           username: userFormData.username,
           email: userFormData.email,
           password: userFormData.password,
-        }},
+          },
+        },
       });
-
       Auth.login(data.addUser.token);
-      handleModalClose();
     } catch (e) {
       console.error(e);
       setShowAlert(true);
