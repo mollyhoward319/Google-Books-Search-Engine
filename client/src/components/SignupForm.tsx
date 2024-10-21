@@ -18,8 +18,8 @@ const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
   // update state based on form input changes
-  const handleInputChange = (event: ChangeEvent) => {
-    const { name, value } = event.target as HTMLInputElement;
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
 
     setUserFormData({
       ...userFormData,
